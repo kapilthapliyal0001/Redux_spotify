@@ -14,7 +14,9 @@ import {
   Navbar,
 } from "react-bootstrap";
 import NavBar from "./components/NavBar";
+import Home from "./components/Home";
 import Album from "./components/Album";
+import Artist from "./components/Artist";
 
 export default class App extends Component {
   state = {
@@ -25,22 +27,21 @@ export default class App extends Component {
     return (
       <Router>
         <Container fluid>
-          <Row>
-            <Col>
-              <Link to="/">
-                <NavBar
-                  seachQuery={this.state.search}
-                  submit={(props) => {
-                    this.setState({search: props});
-                  }}
-                />
-              </Link>
-            </Col>
-            {/* <CartIndicatore /> */}
-          </Row>
-          {/* <Route exact path="/basic" component={HomePage} /> */}
-          <Route path="/" exact component={Album} />
-          {/* <Route path="/cart" exact component={Cart} /> */}
+          <Link to="/">
+            <NavBar
+              seachQuery={this.state.search}
+              submit={(props) => {
+                this.setState({search: props});
+              }}
+            />
+          </Link>
+          <Route
+            path="/"
+            exact
+            render={(props) => <Home text={this.state.search} {...props} />}
+          />
+          <Route path="/album/:albumId/" component={Album} />
+          <Route path="/artist/:artistId/" component={Artist} />
         </Container>
       </Router>
     );
