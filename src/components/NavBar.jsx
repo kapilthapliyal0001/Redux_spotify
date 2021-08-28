@@ -8,8 +8,19 @@ import {
   NavDropdown,
   FormControl,
 } from "react-bootstrap";
+import {connect} from "react-redux";
 
-export default class NavBar extends Component {
+const mapStateToProps = (state) => state;
+
+const mapDispatchToProps = (dispatch) => ({
+  addToSearch: (text) =>
+    dispatch({
+      type: "ADD_TO_SEARCH_TEXT",
+      payload: text,
+    }),
+});
+
+class NavBar extends Component {
   state = {
     text: this.props.searchQuery,
   };
@@ -35,6 +46,7 @@ export default class NavBar extends Component {
             className="px-1"
             onClick={() => {
               this.props.submit(this.state.text);
+              this.props.addToSearch(this.state.text);
             }}
           >
             Search
@@ -44,3 +56,5 @@ export default class NavBar extends Component {
     );
   }
 }
+
+export default connect(mapStateToProps, mapDispatchToProps)(NavBar);

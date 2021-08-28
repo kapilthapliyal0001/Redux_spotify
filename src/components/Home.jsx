@@ -2,11 +2,29 @@ import React, {Component} from "react";
 import {Container, Row, Col, Card, Button, Badge} from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import HomeCard from "./HomeCard";
+import Player from "./Player";
+import {connect} from "react-redux";
+
+const mapStateToProps = (state) => state;
+
+const mapDispatchToProps = (dispatch) => ({
+  addTask: (arrayList) =>
+    dispatch({
+      type: "ADD_TO_HOME",
+      payload: arrayList,
+    }),
+
+  addPlayer: (music) =>
+    dispatch({
+      type: "ADD_TO_PLAYER",
+      payload: music,
+    }),
+});
 
 class Home extends Component {
   state = {
-    album: null,
     search: this.props.text,
+    player: null,
   };
 
   componentDidMount() {
@@ -16,32 +34,39 @@ class Home extends Component {
       .then((data) => data.json())
       .then((file) => {
         console.log(file);
-        this.setState({album: file});
+        this.props.addTask(file);
       });
   }
 
+  // will recieve the whole state as a prop from the redux store;
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.text !== this.props.text) {
+    if (prevProps.searchText !== this.props.searchText) {
       let res = fetch(
-        `https://striveschool-api.herokuapp.com/api/deezer/search?q=${this.props.text}`
+        `https://striveschool-api.herokuapp.com/api/deezer/search?q=${this.props.searchText}`
       )
         .then((data) => data.json())
         .then((file) => {
           console.log(file);
-          this.setState({search: this.props.text});
-          this.setState({album: file});
+          this.props.addTask(file);
         });
     }
   }
 
   render() {
     return (
-      <Container style={{backgroundColor: "black"}} fluid>
+      <Container fluid>
+        <div className="sticky-top">
+          {this.props.player ? (
+            <Player music={this.props.player} />
+          ) : (
+            <div>No Song selected</div>
+          )}
+        </div>
         <Container>
-          {this.state.album ? (
+          {this.props.homeMusic ? (
             <Row>
-              {this.state.album.data.map((music) => (
-                <HomeCard music={music} />
+              {this.props.homeMusic.data.map((music) => (
+                <HomeCard music={music} key={music.id} />
               ))}
             </Row>
           ) : (
@@ -53,4 +78,4 @@ class Home extends Component {
   }
 }
 
-export default Home;
+export default connect(mapStateToProps, mapDispatchToProps)(Home);

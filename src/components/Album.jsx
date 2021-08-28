@@ -1,23 +1,28 @@
 import React, {Component} from "react";
 import {Card, Button, Col, Container, Row, Image} from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import {connect} from "react-redux";
 
-export default class Album extends Component {
-  state = {
-    Array: null,
-  };
+const mapStateToProps = (state) => state;
 
+const mapDispatchToProps = (dispatch) => ({
+  addToAlbum: (arrayList) =>
+    dispatch({
+      type: "ADD_TO_ALBUM",
+      payload: arrayList,
+    }),
+});
+
+class Album extends Component {
   componentDidMount() {
     let res = fetch(
       `https://striveschool-api.herokuapp.com/api/deezer/album/${this.props.match.params.albumId}`
     )
       .then((data) => data.json())
       .then((file) => {
-        this.setState({
-          Array: file,
-        });
         console.log(file.title);
         console.log(file);
+        this.props.addToAlbum(file);
         return file;
       })
       .then((check) => {
@@ -29,31 +34,25 @@ export default class Album extends Component {
     return (
       <div className="text-center">
         <h2>{this.props.match.params.albumId}</h2>
-        {this.state.Array ? (
+        {this.props.albumMusic ? (
           <div>
-            {/* <h3>{this.state.Array.title}</h3> */}
             <div className="d-flex justify-content-center">
               <Card style={{width: "18rem"}} className="mt-2">
-                <Card.Img variant="top" src={this.state.Array.cover_big} />
+                <Card.Img variant="top" src={this.props.albumMusic.cover_big} />
                 <Card.Body>
-                  <Card.Title>{this.state.Array.title}</Card.Title>
-                  {/* <Card.Text>
-                Some quick example text to build on the card title and make up
-                the bulk of the card's content.
-              </Card.Text> */}
-                  {/* <Button variant="primary">Go somewhere</Button> */}
+                  <Card.Title>{this.props.albumMusic.title}</Card.Title>
                 </Card.Body>
               </Card>
             </div>
             <Container className="songs m-2">
               <Row>
-                {this.state.Array.tracks.data.map((music) => (
-                  <Col className="m-3">
+                {this.props.albumMusic.tracks.data.map((music) => (
+                  <Col className="m-3" key={music.id}>
                     <Card style={{width: "18rem"}} style={{width: "12rem"}}>
                       <Image
                         className=""
                         variant="top"
-                        src={this.state.Array.cover_big}
+                        src={this.props.albumMusic.cover_big}
                         roundedCircle
                       />
                       <Card.Body>
@@ -81,3 +80,5 @@ export default class Album extends Component {
     );
   }
 }
+
+export default connect(mapStateToProps, mapDispatchToProps)(Album);
